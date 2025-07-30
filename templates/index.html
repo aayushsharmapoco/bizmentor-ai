@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BizMentor AI</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center px-4">
+  <div class="bg-white p-6 rounded shadow-md w-full max-w-xl">
+    <h1 class="text-2xl font-bold mb-4 text-center">BizMentor AI</h1>
+    <form method="POST">
+      <textarea name="query" class="w-full border rounded p-2 mb-4" rows="4" placeholder="Ask your business question..."></textarea>
+      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Get Advice</button>
+    </form>
+
+    {% if advice %}
+    <div class="mt-6 p-4 bg-green-100 rounded border border-green-300">
+      <h2 class="font-semibold mb-2">AI Advice:</h2>
+      <p>{{ advice }}</p>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>
