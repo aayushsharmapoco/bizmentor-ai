@@ -14,8 +14,9 @@ def index():
     if request.method == "POST":
         try:
             query = request.form["query"]
+            print("🟡 User asked:", query)  # Debug print
             response = co.generate(
-                model='command-r-plus',  # ✅ Fixed model name
+                model='command-r-plus',
                 prompt=f"Act like a smart business advisor for small Indian shopkeepers. Question: {query}",
                 max_tokens=150,
                 temperature=0.6
@@ -23,9 +24,8 @@ def index():
             advice = response.generations[0].text.strip()
         except Exception as e:
             print("❌ Error during POST request:", e)
-            advice = "Something went wrong while generating advice. Please try again."
+            advice = f"Something went wrong: {e}"
     return render_template("index.html", advice=advice)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
- 

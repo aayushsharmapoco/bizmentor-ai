@@ -1,67 +1,88 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>BizMentor AI</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center px-4">
+  <div class="bg-white p-6 rounded shadow-md w-full max-w-xl">
+    <img src="{{ url_for('static', filename='images/landing.png') }}" alt="BizMentor AI" class="mb-4 rounded">
+    <h1 class="text-2xl font-bold mb-4 text-center">BizMentor AI</h1>
 
-  <!-- Card -->
-  <div class="bg-white p-6 rounded shadow-md w-full max-w-xl text-center">
-    
-    <!-- Image -->
-    <img src="{{ url_for('static', filename='images/landing.png') }}" alt="BizMentor AI" class="w-full mb-4 rounded">
+    <form method="POST" class="mt-4">
+      <input
+        type="text"
+        id="queryInput"
+        name="query"
+        placeholder="Ask your business question..."
+        class="border rounded p-2 w-full"
+        required
+      />
+      
+      <div class="flex items-center space-x-2 mt-2">
+        <button
+          type="submit"
+          class="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Ask
+        </button>
 
-    <!-- Header -->
-    <h1 class="text-2xl font-bold mb-4">BizMentor AI</h1>
+        <button
+          type="button"
+          onclick="startListening()"
+          class="bg-green-500 text-white px-4 py-2 rounded"
+        >
+          🎤 Speak
+        </button>
 
-    <!-- Form -->
-    <form method="POST" class="flex flex-col gap-4">
-      <input name="user_input" type="text" placeholder="Ask your business question..." required
-        class="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <button type="submit"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded">
-        Ask
-      </button>
+        <span id="statusText" class="text-gray-500"></span>
+      </div>
     </form>
 
-    <!-- 🎤 Voice Assistant Button -->
-    <button onclick="startListening()" class="bg-green-500 hover:bg-green-600 text-white font-semibold px-4 py-2 rounded mt-4">
-      🎤 Speak
-    </button>
-
-    <!-- AI Response -->
-    {% if response %}
-    <div class="mt-6 p-4 bg-gray-100 rounded text-left">
-      <h2 class="font-bold text-gray-700 mb-2">AI Response:</h2>
-      <p>{{ response }}</p>
+    {% if advice %}
+    <div class="mt-6 p-4 bg-gray-100 border rounded">
+      <strong class="block mb-2 text-gray-700">BizMentor Says:</strong>
+      <p class="text-gray-800 whitespace-pre-line">{{ advice }}</p>
     </div>
     {% endif %}
   </div>
 
-  <!-- Voice Script -->
   <script>
-    // 🎤 Speech to Text
     function startListening() {
-      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.lang = 'en-US';
+      const statusText = document.getElementById("statusText");
+      const inputBox = document.getElementById("queryInput");
+
+      if (!('webkitSpeechRecognition' in window)) {
+        alert("Your browser does not support speech recognition. Try Chrome.");
+        return;
+      }
+
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = "en-IN";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      statusText.textContent = "🎙️ Listening...";
+
       recognition.start();
 
       recognition.onresult = function(event) {
         const transcript = event.results[0][0].transcript;
-        document.querySelector('input[name="user_input"]').value = transcript;
-        document.querySelector('form').submit();
+        inputBox.value = transcript;
+        statusText.textContent = "✅ Captured: " + transcript;
+      };
+
+      recognition.onerror = function() {
+        statusText.textContent = "❌ Error. Try again.";
+      };
+
+      recognition.onend = function() {
+        if (statusText.textContent === "🎙️ Listening...") {
+          statusText.textContent = "⚠️ Didn't hear anything.";
+        }
       };
     }
-
-    // 🔊 Text to Speech (AI Response)
-    window.addEventListener('DOMContentLoaded', () => {
-      const responseText = "{{ response|default('') }}";
-      if (responseText) {
-        const utterance = new SpeechSynthesisUtterance(responseText);
-        speechSynthesis.speak(utterance);
-      }
-    });
   </script>
 </body>
 </html>
